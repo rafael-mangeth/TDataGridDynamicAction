@@ -23,5 +23,15 @@
     "en": "Teacher",
     "pt": "Professor",
     "es": "Profesor"
+  },
+  {
+    "en": "Deactivate",
+    "pt": "Desativar",
+    "es": "Desactivar"
+  },
+  {
+    "en": "Activate",
+    "pt": "Ativar",
+    "es": "Activar"
   }
 ]
