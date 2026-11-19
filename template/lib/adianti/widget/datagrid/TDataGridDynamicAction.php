@@ -3,19 +3,20 @@
 namespace Adianti\Widget\Datagrid;
 
 use Adianti\Control\TAction;
-use Adianti\Widget\Datagrid\TDataGridAction;
+
 class TDataGridDynamicAction extends TDataGridAction 
 {
     private $variants = [];
     private $resolved = false;
     
-    public function __construct(?string $field)
+
+    public function __construct(string $field)
     {
-        parent::__construct([__CLASS__], 'placeholder');
+        parent::__construct([__CLASS__, 'placeholder']);
         $this->setField($field);
     }
 
-    public function placeholder(){}
+    public static function placeholder(){}
 
     public function addVariant(callable $condition, array $callback, $image = null, $label = null, $parameters = null, $title = null)
     {
@@ -23,7 +24,7 @@ class TDataGridDynamicAction extends TDataGridAction
 
         $this->variants[] = [
             'condition'  => $condition,
-            'callack'    => $probe->getAction(),
+            'callback'   => $probe->getAction(),
             'image'      => $image,
             'label'      => $label,
             'title'      => $title,
@@ -42,6 +43,7 @@ class TDataGridDynamicAction extends TDataGridAction
 
         $template = clone $this;
         $template->resolved = true;
+        $template->copyPaginationParameters();
 
         if (($variant = $this->resolveVariant($object)) !== null) {
             $template->action = $variant['callback'];
@@ -53,7 +55,7 @@ class TDataGridDynamicAction extends TDataGridAction
                 $template->setParameter((string) $name, $value);
             }
         } else {
-            $template->setDisplayCondition(static fn(): bool => false);
+            $template->setDisplayCondition(static function(){ return false; });
         }
 
         $prepared = $template->prepare($object);
@@ -64,6 +66,15 @@ class TDataGridDynamicAction extends TDataGridAction
         
         return $prepared;
        
+    }
+
+     private function copyPaginationParameters()
+    {
+        foreach (['offset', 'limit', 'page', 'first_page', 'order'] as $key) {
+            if (isset($_REQUEST[$key])) {
+                $this->setParameter($key, $_REQUEST[$key]);
+            }
+        }
     }
 
     private function resolveVariant($object)

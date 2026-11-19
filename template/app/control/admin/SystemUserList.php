@@ -1,4 +1,5 @@
 <?php
+use Adianti\Widget\Datagrid\TDataGridDynamicAction;
 /**
  * SystemUserList
  *
@@ -206,11 +207,22 @@ class SystemUserList extends TPage
         $this->datagrid->addAction($action_clone);
         
         // create ONOFF action
-        $action_onoff = new TDataGridAction(array($this, 'onTurnOnOff'));
+        $action_onoff = new TDataGridDynamicAction('id');
         $action_onoff->setButtonClass('btn btn-default');
-        $action_onoff->setLabel(_t('Activate/Deactivate'));
-        $action_onoff->setImage('fa:power-off orange');
-        $action_onoff->setField('id');
+        $action_onoff->addVariant(
+            fn($object) => $object->active == 'Y',
+            [$this, 'onTurnOnOff'],
+            'fa:power-off green',
+            _t('Deactivate')
+        );
+
+        $action_onoff->addVariant(
+            fn($object) => $object->active == 'N',
+            [$this, 'onTurnOnOff'],
+            'fa:power-off red',
+            _t('Activate')
+        );
+
         $this->datagrid->addAction($action_onoff);
         
         // create ONOFF action
